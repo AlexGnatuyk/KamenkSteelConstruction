@@ -1,0 +1,39 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Basic DataGrid - jQuery EasyUI Demo</title>
+    <link rel="stylesheet" type="text/css" href="http://www.jeasyui.com/easyui/themes/metro/easyui.css">
+    <link rel="stylesheet" type="text/css" href="http://www.jeasyui.com/easyui/themes/icon.css">
+    <script type="text/javascript" src="css/jquery_1_6.js"></script>
+    <script type="text/javascript" src="css/jquery_easy_ui.js"></script>
+    <link rel="stylesheet" type="text/css" href="http://www.jeasyui.com/easyui/demo/demo.css">
+    <script>
+    var str = window.location.search.split('id='); //разбиваем подстроку на массив.
+
+if (str[1].match(/\d/) != null) id = str[1] //берем из него второй элемент и проверяем число это или нет, Если не null показываем.
+
+ 
+</script>
+</head>
+<body>
+    
+    <div style="margin:20px 0;"></div>
+    
+     <table id="dg" title="Сотрудники" class="easyui-datagrid" style="width:1000px;height:600px"
+			url="get_payment.php"
+            striped="true"       
+			toolbar="#toolbar" pagination="true"
+			rownumbers="true" fitColumns="true" singleSelect="true"
+                   pageList="[18,30,40,50]">
+        <thead>
+            <tr>
+                <th field='Salary_id' width='80' >Item ID</th>
+                
+            </tr>
+        </thead>
+    </table>
+ 
+</body>
+</html>

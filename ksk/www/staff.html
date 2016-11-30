@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>КАМЕНСК-СТАЛЬКОНСТРУКЦИЯ</title>
+		<link rel="stylesheet" type="text/css" href="http://www.jeasyui.com/easyui/themes/metro/easyui.css">
+		<link rel="stylesheet" type="text/css" href="http://www.jeasyui.com/easyui/themes/icon.css">
+		<script type="text/javascript" src="css/jquery_1_6.js"></script>
+		<script type="text/javascript" src="css/jquery_easy_ui.js"></script>
+		<script type="text/javascript" src="http://www.jeasyui.com/easyui/datagrid-detailview.js"></script>
+		<link rel="stylesheet" type="text/css" href="http://www.jeasyui.com/easyui/demo/demo.css">
+		<style type="text/css">
+			#fm{
+			margin:0;
+			padding:10px 30px;
+			}
+			.ftitle{
+			font-size:14px;
+			font-weight:bold;
+			color:#666;
+			padding:5px 0;
+			margin-bottom:10px;
+			border-bottom:1px solid #ccc;
+			}
+			.fitem{
+			margin-bottom:5px;
+			}
+			.fitem label{
+			display:inline-block;
+			width:80px;
+			}
+		</style>
+		<script type="text/javascript">
+
+			$(function(){
+				$('#dgUnits').datagrid({
+					view: detailview,
+					detailFormatter:function(index,row){
+						return '<div style="padding:2px"><table id="ddv-' + index + '"></table></div> <br> <div style="padding:2px"><table id="ddvvvi-' + index + '"></table></div>';
+					},
+					onExpandRow: function(index,row){
+						$('#ddv-'+index).datagrid({
+							url:'get_unit_staff.php?id='+row.id,
+							fitColumns:true,
+                            title:'Сотрудники',
+							singleSelect:true,
+							rownumbers:true,
+                            striped:true,
+							loadMsg:'',
+							height:'auto',
+							columns:[[
+								{field:'first_name',title:'Имя',width:100},
+								{field:'last_name',title:'Фамилия',width:100},
+								{field:'position_name',title:'Должность',width:200}
+							]],
+							onResize:function(){
+								$('#dgUnits').datagrid('fixDetailRowHeight',index);
+							},
+							onLoadSuccess:function(){
+								setTimeout(function(){
+									$('#dgUnits').datagrid('fixDetailRowHeight',index);
+								},0);
+							}
+						});
+                        $('#ddvvvi-'+index).datagrid({
+							url:'get_inventory.php?id='+row.id,
+							fitColumns:true,
+                            title:'Инвентарь',
+							singleSelect:true,
+							rownumbers:true,
+                            striped:true,
+							loadMsg:'',
+							height:'auto',
+							columns:[[
+								{field:'id',title:'Код инвентаря',width:100},
+								{field:'description',title:'Описание',width:100},
+								
+							]],
+							onResize:function(){
+								$('#dgUnits').datagrid('fixDetailRowHeight',index);
+							},
+							onLoadSuccess:function(){
+								setTimeout(function(){
+									$('#dgUnits').datagrid('fixDetailRowHeight',index);
+								},0);
+							}
+						});
+						$('#dgUnits').datagrid('fixDetailRowHeight',index);
+					}
+				});
+			});
+		</script>
+		<script>
+
+			$(function(){
+				$('#dg').datagrid({
+					view: detailview,
+					detailFormatter:function(index,row){
+						return '<div style="padding:2px"><table id="ddvv-' + index + '"></table></div>';
+					},
+					onExpandRow: function(index,row){
+						$('#ddvv-'+index).datagrid({
+							url:'get_payment.php?id='+row.id,
+							fitColumns:true,
+							singleSelect:true,
+							rownumbers:true,
+							striped:true,
+							loadMsg:'',
+							height:'auto',
+							columns:[[
+								{field:'date',title:'Дата выплаты',width:100},
+								{field:'count',title:'Сумма выплаты',width:100},
+							]],
+							onResize:function(){
+								$('#dg').datagrid('fixDetailRowHeight',index);
+							},
+							onLoadSuccess:function(){
+								setTimeout(function(){
+									$('#dg').datagrid('fixDetailRowHeight',index);
+								},0);
+							}
+						});
+						$('#dg').datagrid('fixDetailRowHeight',index);
+					}
+				});
+			});
+		</script>
+        
+		<script>
+			//$(document).ready(function(){
+			//  var str = window.location.search.split('id='); //разбиваем подстроку на массив.
+			
+			//   if (str[1].match(/\d/) != null) id = str[1] //берем из него второй элемент и проверяем число это или нет, Если не null показываем.
+			//    alert(id);
+			//   });
+			 
+			 var str = window.location.search.split('id='); //разбиваем подстроку на массив.
+			 var indx;
+			 if (str[1].match(/\d/) != null) {indx = str[1]; }//берем из него второй элемент и проверяем число это или нет, Если не null показываем.
+			//   alert(id);
+			
+			
+			
+			
+			
+			
+			 $('#tt').tabs({
+			 selected:'1'
+			 });
+			    
+			
+			
+		</script>
+		<script type="text/javascript">
+			var url;
+			function newUser(){
+				$('#dlg').dialog('open').dialog('setTitle','Принять сотрудника');
+				$('#fm').form('clear');
+				url = 'save_user.php';
+			}
+			      function doSearch(){  
+			       
+			          $('#dg').datagrid('load',{last_nameid: $('#lastnameid').val(),first_nameid: $('#firstnameid').val()});  
+			      
+			      }  
+			
+			function editUser(){
+				var row = $('#dg').datagrid('getSelected');
+				if (row){
+					$('#dlg').dialog('open').dialog('setTitle','Изменить информацию о сотруднике');
+					$('#fm').form('load',row);
+					url = 'update_user.php?id='+row.id;
+				}
+			}
+			function saveUser(){
+				$('#fm').form('submit',{
+					url: url,
+					onSubmit: function(){
+						return $(this).form('validate');
+					},
+					success: function(result){
+						var result = eval('('+result+')');
+						if (result.success){
+							$('#dlg').dialog('close');		// close the dialog
+							$('#dg').datagrid('reload');	// reload the user data
+						} else {
+							$.messager.show({
+								title: 'Error',
+								msg: result.msg
+							});
+						}
+					}
+				});
+			}        
+			function removeUser(){
+				var row = $('#dg').datagrid('getSelected');
+				if (row){
+					$.messager.confirm('Подтверждение','Вы уверены, что хотите уволить сотрудника?',function(r){
+						if (r){
+							$.post('remove_user.php',{id:row.id},function(result){
+								if (result.success){
+									$('#dg').datagrid('reload');	// reload the user data
+								} else {
+									$.messager.show({	// show error message
+										title: 'Error',
+										msg: result.msg
+									});
+								}
+							},'json');
+						}
+					});
+				}
+			}
+			function myformatter(date){
+			          var y = date.getFullYear();
+			          var m = date.getMonth()+1;
+			          var d = date.getDate();
+			          return y+'-'+(m<10?('0'+m):m)+'-'+(d<10?('0'+d):d);
+			      }
+			function myparser(s){
+			          if (!s) return new Date();
+			          var ss = (s.split('-'));
+			          var y = parseInt(ss[0],10);
+			          var m = parseInt(ss[1],10);
+			          var d = parseInt(ss[2],10);
+			          if (!isNaN(y) && !isNaN(m) && !isNaN(d)){
+			              return new Date(y,m-1,d);
+			          } else {
+			              return new Date();
+			          }
+			      }
+			function showst(){
+			              $state=$('#state').combobox('getValue')
+			          alert($state)
+			          }
+			function showUser(){
+			          var row = $('#dg').datagrid('getSelected');
+				if (row){
+					$('#staffdlg').dialog('open').dialog('setTitle','Информация о сотруднике');
+					$('#stafffm').form('load',row);
+					url = 'setPayment.php?position='+row.position_name+'&id='+row.id;
+				}
+			      }
+			function setPayment(){
+					$('#paymentdlg').dialog('open').dialog('setTitle','Произведение выплаты');
+			      }
+			function savePayment(){
+				$('#paymentfm').form('submit',{
+					url: url,
+					onSubmit: function(){
+						return $(this).form('validate');
+					},
+					success: function(result){
+						var result = eval('('+result+')');
+						if (result.success){
+							$('#paymentdlg').dialog('close');		// close the dialog
+							$('#staffdlg').dialog('close');
+							$('#dg').datagrid('reload');	// reload the user data
+						} else {
+							$.messager.show({
+								title: 'Error',
+								msg: result.msg
+							});
+						}
+					}
+				});
+			}
+			function newTask(){
+			          $('#newTaskDlg').dialog('open').dialog('setTitle','Назначитть задание');
+                      $('#taskObject').combobox('reload','get_object.php');
+			          $('#taskfm').form('clear');
+			          url = 'newTask.php';
+			          
+			      }
+			function saveTask(){
+			          $('#taskfm').form('submit',{
+					url: url,
+					onSubmit: function(){
+						return $(this).form('validate');
+					},
+					success: function(result){
+						var result = eval('('+result+')');
+						if (result.success){
+							$('#newTaskDlg').dialog('close');		// close the dialog
+							$('#dgTasks').datagrid('reload');	// reload the user data
+						} else {
+							$.messager.show({
+								title: 'Error',
+								msg: result.msg
+							});
+						}
+					}
+				});
+			      
+			      }
+			function removeTask(){
+				var row = $('#dgTasks').datagrid('getSelected');
+				if (row){
+					$.messager.confirm('Подтверждение','Вы уверены, что хотите убрать задание?',function(r){
+						if (r){
+							$.post('remove_task.php',{id:row.task_id},function(result){
+								if (result.success){
+									$('#dgTasks').datagrid('reload');	// reload the user data
+								} else {
+									$.messager.show({	// show error message
+										title: 'Error',
+										msg: result.msg
+									});
+								}
+							},'json');
+						}
+					});
+				}
+
+				}
+            function showTask(){
+                var row = $('#dgTasks').datagrid('getSelected');
+				if (row){
+					$('#infTaskDlg').dialog('open').dialog('setTitle','Задание');
+					$('#infTaskfm').form('load',row);
+					
+				}
+            }
+            function editTask(){
+                $('#taskObject').combobox('reload','get_object.php');
+                var row = $('#dgTasks').datagrid('getSelected');
+				if (row){
+					$('#editTaskDlg').dialog('open').dialog('setTitle','Задание');
+					$('#editTaskfm').form('load',row);
+					url = 'update_task.php?id='+row.task_id;
+				}
+            }
+            function saveEtask(){
+                $('#editTaskfm').form('submit',{
+					url: url,
+					onSubmit: function(){
+						return $(this).form('validate');
+					},
+					success: function(result){
+						var result = eval('('+result+')');
+						if (result.success){
+							$('#editTaskDlg').dialog('close');		// close the dialog
+							$('#dgTasks').datagrid('reload');	// reload the user data
+						} else {
+							$.messager.show({
+								title: 'Error',
+								msg: result.msg
+							});
+						}
+					}
+				});
+            }
+			function newObject(){
+				$('#objectDlg').dialog('open').dialog('setTitle','Добавить объект');
+				$('#objectfm').form('clear');
+				url = 'newObject.php';
+			}
+			function saveObject(){
+				$('#objectfm').form('submit',{
+					url: url,
+					onSubmit: function(){
+						return $(this).form('validate');
+					},
+					success: function(result){
+						var result = eval('('+result+')');
+						if (result.success){
+							$('#objectDlg').dialog('close');		// close the dialog
+							$('#dgObject').datagrid('reload');	// reload the user data
+                            $('#dgTasks').datagrid('reload');
+						} else {
+							$.messager.show({
+								title: 'Error',
+								msg: result.msg
+							});
+						}
+					}
+				});
+                
+
+			}
+			function removeObject(){
+				var row = $('#dgObject').datagrid('getSelected');
+				if (row){
+					$.messager.confirm('Подтверждение','Вы уверены, что хотите удалить объект?',function(r){
+						if (r){
+							$.post('remove_object.php',{id:row.id},function(result){
+								if (result.success){
+									$('#dgObject').datagrid('reload');	// reload the user data
+
+								} else {
+									$.messager.show({	// show error message
+										title: 'Error',
+										msg: result.msg
+									});
+								}
+							},'json');
+						}
+					});
+				}
+                
+			}
+			function editObject(){
+				var row = $('#dgObject').datagrid('getSelected');
+				if (row){
+					$('#objectDlg').dialog('open').dialog('setTitle','Объект');
+					$('#objectfm').form('load',row);
+					url = 'update_object.php?id='+row.id;
+				}
+			}
+		</script>
+	</head>
+	<body>
+		<div id="tt" class="easyui-tabs" style="width:1180px;height:630px" tabPosition="left" selected="indx">
+			<div title="Сотрудники" style="padding:10px">
+				<table id="dg" title="Сотрудники" class="easyui-datagrid" style="width:1000px;height:600px"
+					url="get_users.php"
+					striped="true"       
+					toolbar="#toolbar" pagination="true"
+					rownumbers="true" fitColumns="true" singleSelect="true"
+					pageList="[18,30,40,50]">
+					<thead>
+						<tr>
+							<th field="id" width="0" hidden="true"></th>
+							<th field="first_name" width="10">Имя</th>
+							<th field="last_name" width="15">Фамилия</th>
+							<th field="birthday" width="15">Дата рождения</th>
+							<th field="pasportNum" width="0" hidden="true"></th>
+							<th field="position_name" width="30">Профессия</th>
+							<th field="units_name" width="50">Отдел</th>
+						</tr>
+					</thead>
+				</table>
+				<div id="toolbar">
+					<a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="newUser()">Принять сотрудника</a>
+					<a href="#" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="editUser()">Изменить информацию о сотруднике</a>
+					<a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="removeUser()">Уволить сотрудника</a>
+					<a href="#" class="easyui-linkbutton" plain="true" onclick="showUser()">Показать информацию</a>
+					<!-- <span>Имя:</span>  
+						<input id="firstnameid" style="line-height:22px;border:1px solid #ccc">  
+						<span>Фамилия:</span>  
+						<input id="lastnameid" style="line-height:22px;border:1px solid #ccc">   
+						<a href="#" class="easyui-linkbutton" plain="true" onclick="doSearch()">Поиск</a>  -->
+				</div>
+				<div id="dlg" class="easyui-dialog" style="width:400px;height:320px;padding:10px 20px"
+					closed="true" buttons="#dlg-buttons">
+					<div class="ftitle">Информация сторудника</div>
+					<form id="fm" method="post" novalidate>
+						<div class="fitem">
+							<label>Имя:</label>
+							<input name="first_name" class="easyui-validatebox" required="true">
+						</div>
+						<div class="fitem">
+							<label>Фамилия:</label>
+							<input name="last_name" class="easyui-validatebox" required="true">
+						</div>
+						<div class="fitem">
+							<label>Дата Рождения:</label>
+							<input name="birthday" class="easyui-datebox"  required="true"data-options="formatter:myformatter,parser:myparser"></input>
+						</div>
+						<div class="fitem">
+							<label>Номер паспорта:</label>
+							<input name="pasportNum" class="easyui-validatebox" required="true"></input>
+						</div>
+						<div calss="fitem">
+							<label>Специальность:</label>
+							<input id="state" class="easyui-combobox" name="state" style="width:150px;" data-options="valueField:'id',textField:'position_name',url:'get_position.php',method:'get'">
+						</div>
+						<div calss="fitem">
+							<label>Отдел:</label>
+							<input id="units" class="easyui-combobox" name="units" style="width:150px;"  data-options="valueField:'id',textField:'units_name',url:'get_units.php',method:'get'">
+						</div>
+					</form>
+				</div>
+				<div id="staffdlg" class="easyui-dialog" style="width:400px;height:320px;padding:10px 20px"
+					closed="true">
+					<form id="stafffm" method="post" novalidate>
+						<div class="fitem">
+							<label>Имя:</label>
+							<input name="first_name" class="easyui-textbox" editable="false"></span>
+						</div>
+						<div class="fitem">
+							<label>Фамилия:</label>
+							<input class="easyui-textbox" name="last_name" editable="false"></span>
+						</div>
+						<div class="fitem">
+							<label>Дата Рождения:</label>
+							<input class="easyui-textbox" name="birthday" editable="false"></span>
+						</div>
+						<div class="fitem">
+							<label>Номер паспорта:</label>
+							<input class="easyui-textbox" name="pasportNum" editable="false"></span>
+						</div>
+						<a href="#" class="easyui-linkbutton" onclick="setPayment()"><font size="4">Произвести выплату</font></a>
+					</form>
+				</div>
+				<div id="dlg-buttons">
+					<a href="#" class="easyui-linkbutton" iconCls="icon-ok" onclick="saveUser()">Сохранить</a>
+					<a href="#" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#dlg').dialog('close')">Отмена</a>
+				</div>
+				<div id="paymentdlg" class="easyui-dialog" style="width:400px;height:320px;padding:10px 20px"
+					 closed="true">
+					<form id="paymentfm" method="post" novalidate>
+						<div class="fitem">
+							<label>Укажите за дату, за котрую производится выплата:</label>
+							<input name="paymentDate" class="easyui-datebox"  required="true"data-options="formatter:myformatter,parser:myparser"></input>
+						</div>
+						<a href="#" class="easyui-linkbutton" onclick="savePayment()"><font size="4">Произвести выплату</font></a>
+					</form>
+				</div>
+
+			</div>
+			<!-- <div title="Руководство" style="padding:10px">
+			</div> -->
+			<div title="Отделы"  style="padding:10px">
+				<table id="dgUnits" title="Отделы" class="easyui-datagrid" style="width:1000px;height:600px"
+					   url="get_units.php"
+					   striped="true"
+					   pagination="true"
+					   rownumbers="true" fitColumns="true" singleSelect="true"
+					   pageList="[18,30,40,50]">
+					<thead>
+					<tr>
+						<th field="id" width="0" hidden="true" ></th>
+						<th field="units_name" width="10">Название отдела</th>
+						<th field="last_name" width ="10">Руководитель</th>
+
+					</tr>
+					</thead>
+				</table>
+               
+			</div>
+			<div title="Текущие задачи"  style="padding:10px">
+				<table id="dgTasks" title="Текущие задачи" class="easyui-datagrid" style="width:1000px;height:600px"
+					url="get_tasks.php"
+					striped="true"       
+					toolbar="#task_toolbar" pagination="true"
+					rownumbers="true" fitColumns="true" singleSelect="true"
+					pageList="[18,30,40,50]">
+					<thead>
+						<tr>
+							<th field="units_id" width="0" hidden="true"></th>
+							<th field="units_name" width="10">Название отдела</th>
+							<th field="objects_id" width="15">Код объекта</th>
+							<th field="task_id" width="0" hidden="true"></th>
+                            <th field="text" width="0" hidden="true"></th>
+                            <th field="description" width="0" hidden="true"></th>
+						</tr>
+					</thead>
+				</table>
+				<div id="task_toolbar">
+					<a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="newTask()">Назначить задание</a>
+				    <a href="#" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="editTask()">Изменить задание</a>
+					<a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="removeTask()">Убрать задание</a>
+					<a href="#" class="easyui-linkbutton" plain="true" onclick="showTask()">Показать задание</a>
+				</div>
+				<div id="newTaskDlg" class="easyui-dialog" style="width:400px;height:320px;padding:10px 20px"
+					closed="true" buttons="#newTask-buttons">
+					<form id="taskfm" method="post" novalidate>
+						<div class="fitem">
+							<label>Отдел:</label>
+							<input id="unitdlg" class="easyui-combobox" name="unit" style="width:150px;" data-options="valueField:'id',textField:'units_name',url:'get_units.php',method:'get'" required="true">
+						</div>
+						<div class="fitem">
+							<label>Объект:</label>
+							<input id="taskObject" class="easyui-combobox" name="object" style="width:150px;" data-options="valueField:'id',textField:'description',url:'get_object.php',method:'get'" required="true">
+						</div>
+						<div class="fitem">
+							<label>Текст задания:</label>
+							<input class="easyui-textbox" name="text" data-options="multiline:true" style="height:60px" required="true"></input>
+						</div>
+					</form>
+				</div>
+				<div id="newTask-buttons">
+					<a href="#" class="easyui-linkbutton" iconCls="icon-ok" onclick="saveTask()">Сохранить</a>
+					<a href="#" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#newTaskDlg').dialog('close')">Отмена</a>
+				</div>
+                
+                <div id="infTaskDlg" class="easyui-dialog" style="width:400px;height:320px;padding:10px 20px"
+					closed="true">
+					<form id="infTaskfm" method="post" novalidate>
+						<div class="fitem">
+							<label>Отдел:</label>
+							<input name="units_name" class="easyui-textbox" data-options="multiline:true " editable="false" style="height:60px">
+						</div>
+						<div class="fitem">
+							<label>Объект:</label>
+							<input name="description" class="easyui-textbox" data-options="multiline:true " editable="false" style="height:60px">
+						</div>
+						<div class="fitem">
+							<label>Текст задания:</label>
+							<input class="easyui-textbox" name="text" data-options="multiline:true " style="height:60px" editable="false"input>
+						</div>
+					</form>
+				</div>
+
+                <div id="editTaskDlg" class="easyui-dialog" style="width:400px;height:320px;padding:10px 20px"
+					closed="true" buttons="#editTask-buttons">
+					<form id="editTaskfm" method="post" novalidate>
+						<div class="fitem">
+							<label>Отдел:</label>
+							<input name="units_name" class="easyui-textbox" data-options="multiline:true " editable="false" style="height:60px">
+						</div>
+						<div class="fitem">
+							<label>Объект:</label>
+							<input name="description" class="easyui-textbox" data-options="multiline:true " editable="false" style="height:60px">
+						</div>
+						<div class="fitem">
+							<label>Текст задания:</label>
+							<input class="easyui-textbox" name="text" data-options="multiline:true " style="height:60px">
+						</div>
+					</form>
+				</div>
+                <div id="editTask-buttons">
+					<a href="#" class="easyui-linkbutton" iconCls="icon-ok" onclick="saveEtask()">Сохранить</a>
+					<a href="#" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#editTaskDlg').dialog('close')">Отмена</a>
+				</div>    
+			</div>
+			<!-- <div title="Кадровый центр"  style="padding:10px">
+			</div> -->
+			<!--<div title="Назначить задание"  style="padding:10px"> -->
+			<div title="Добавить объект"  style="padding:10px">
+				<table id="dgObject" title="Объекты" class="easyui-datagrid" style="width:1000px;height:600px"
+					   url="get_object.php"
+					   striped="true"
+					   toolbar="#object_toolbar" pagination="true"
+					   rownumbers="true" fitColumns="true" singleSelect="true"
+					   pageList="[18,30,40,50]">
+					<thead>
+					<tr>
+						<th field="id" width="auto" >Код объекта</th>
+						<th field="description" width="10">Название отдела</th>
+
+					</tr>
+					</thead>
+				</table>
+			
+                <div id="object_toolbar">
+                    <a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="newObject()">Добавть объект</a>
+                    <a href="#" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="editObject()">Изменить объект</a>
+                    <a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="removeObject()">Убрать объект</a>
+                </div>
+                <div id="objectDlg" class="easyui-dialog" style="width:400px;height:320px;padding:10px 20px"
+                     closed="true" buttons="#object-buttons">
+                    <form id="objectfm" method="post" novalidate>
+                        <div class="fitem">
+                            <label>Описание:</label>
+                            <input name="description" class="easyui-textbox" data-options="multiline:true " style="height:60px">
+                        </div>
+
+                    </form>
+                </div>
+                <div id="object-buttons">
+                    <a href="#" class="easyui-linkbutton" iconCls="icon-ok" onclick="saveObject()">Сохранить</a>
+                    <a href="#" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#objectDlg').dialog('close')">Отмена</a>
+                </div>
+            </div>    
+		</div>
+	</body>
+</html>
+
